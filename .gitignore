@@ -1,0 +1,19 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.env
+.env.*
+data/*
+!data/.gitkeep
+artifacts/*
+!artifacts/.gitkeep
+!artifacts/demo/
+artifacts/demo/*
+!artifacts/demo/.gitkeep
+
+# Track synthetic demo bundle only
+!/artifacts/demo/model.json
+!/artifacts/demo/metadata.json
+!/artifacts/demo/latest_features.csv
