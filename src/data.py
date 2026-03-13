@@ -22,3 +22,21 @@ def synthetic_prices() -> pd.DataFrame:
         }))
     return pd.concat(frames, ignore_index=True)
 
+
+def download_prices(tickers: list[str], start: str, end: str) -> pd.DataFrame:
+    frames = []
+    for ticker in tickers:
+        frame = yf.download(
+            ticker, start=start, end=end, auto_adjust=True,
+            multi_level_index=False, progress=False, threads=False,
+        )
+        if frame is None or frame.empty:
+            raise RuntimeError(f"No data for {ticker}; retry later or use --synthetic.")
+        frame = frame.reset_index().rename(columns={
+            "Date": "date", "Close": "close", "Volume": "volume",
+        })
+        frame["ticker"] = ticker
+        frame["date"] = pd.to_datetime(frame["date"]).dt.tz_localize(None)
+        frames.append(frame[["date", "ticker", "close", "volume"]])
+    return pd.concat(frames, ignore_index=True)
+
