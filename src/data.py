@@ -40,3 +40,22 @@ def download_prices(tickers: list[str], start: str, end: str) -> pd.DataFrame:
         frames.append(frame[["date", "ticker", "close", "volume"]])
     return pd.concat(frames, ignore_index=True)
 
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--synthetic", action="store_true")
+    parser.add_argument("--start", default="2020-01-01")
+    parser.add_argument("--end", default="2026-01-01", help="Exclusive end date")
+    parser.add_argument("--tickers", nargs="+", default=DEFAULT_TICKERS)
+    parser.add_argument("--out", type=Path, default=DATA_PATH)
+    args = parser.parse_args()
+    frame = synthetic_prices() if args.synthetic else download_prices(
+        args.tickers, args.start, args.end
+    )
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    frame.to_csv(args.out, index=False)
+    print(f"Saved {len(frame):,} rows to {args.out}")
+
+
+if __name__ == "__main__":
+    main()
