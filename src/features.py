@@ -37,3 +37,16 @@ def build_features(prices: pd.DataFrame) -> pd.DataFrame:
     result[FEATURES] = result[FEATURES].replace([np.inf, -np.inf], np.nan)
     return result.dropna(subset=FEATURES).sort_values(["date", "ticker"]).reset_index(drop=True)
 
+
+def temporal_split(frame: pd.DataFrame):
+    """Split unique dates, then purge labels extending into the test interval."""
+    labeled = frame.dropna(subset=["target", "label_end"])
+    dates = sorted(labeled["date"].unique())
+    if len(dates) < 100:
+        raise ValueError("Need at least 100 labeled dates")
+    cutoff = pd.Timestamp(dates[int(len(dates) * 0.8)])
+    train = labeled[(labeled["date"] < cutoff) & (labeled["label_end"] < cutoff)].copy()
+    test = labeled[labeled["date"] >= cutoff].copy()
+    if train.empty or test.empty:
+        raise ValueError("Empty train/test split")
+    return train, test, cutoff
