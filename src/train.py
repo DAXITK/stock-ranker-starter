@@ -79,3 +79,15 @@ def train(data: Path, out: Path, source: str) -> dict:
     print(json.dumps(metadata, indent=2))
     return metadata
 
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data", type=Path, default=DATA_PATH)
+    parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--source", choices=["synthetic", "yahoo-personal"], required=True)
+    args = parser.parse_args()
+    train(args.data, args.out, args.source)
+
+
+if __name__ == "__main__":
+    main()
