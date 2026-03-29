@@ -22,3 +22,10 @@ def test_no_future_feature_leakage():
         altered.loc[altered["date"] <= cutoff, FEATURES],
     )
 
+
+def test_purged_date_split():
+    training, test, _ = temporal_split(build_features(synthetic_prices()))
+    assert training["label_end"].max() < test["date"].min()
+    assert not set(training["date"]) & set(test["date"])
+    assert np.isfinite(training[FEATURES].to_numpy()).all()
+
