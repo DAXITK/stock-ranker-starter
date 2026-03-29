@@ -29,3 +29,13 @@ def test_purged_date_split():
     assert not set(training["date"]) & set(test["date"])
     assert np.isfinite(training[FEATURES].to_numpy()).all()
 
+
+@pytest.fixture(scope="module")
+def artifacts(tmp_path_factory):
+    root = tmp_path_factory.mktemp("model")
+    data = root / "prices.csv"
+    synthetic_prices().to_csv(data, index=False)
+    out = root / "artifacts"
+    train(data, out, "synthetic")
+    return out
+
