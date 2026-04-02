@@ -39,3 +39,18 @@ def artifacts(tmp_path_factory):
     train(data, out, "synthetic")
     return out
 
+
+def test_api(artifacts):
+    with TestClient(create_app(artifacts)) as client:
+        assert client.get("/health").status_code == 200
+        assert client.get("/ready").status_code == 200
+        assert client.get("/model").json()["data_source"] == "synthetic"
+        response = client.post("/predict", json={"tickers": ["aapl", "MSFT", "AAPL"]})
+        assert response.status_code == 200
+        rows = response.json()["rankings"]
+        assert len(rows) == 2
+        assert rows[0]["predicted_return"] >= rows[1]["predicted_return"]
+        assert client.post("/predict", json={"tickers": []}).status_code == 422
+        assert client.post("/predict", json={"tickers": ["INVALID"]}).status_code == 422
+        assert client.get("/metrics").status_code == 200
+
