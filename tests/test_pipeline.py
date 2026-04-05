@@ -54,3 +54,13 @@ def test_api(artifacts):
         assert client.post("/predict", json={"tickers": ["INVALID"]}).status_code == 422
         assert client.get("/metrics").status_code == 200
 
+
+def test_tampered_artifact_rejected(artifacts, tmp_path):
+    import shutil
+    copy = tmp_path / "tampered"
+    shutil.copytree(artifacts, copy)
+    with (copy / "model.json").open("a") as file:
+        file.write(" ")
+    with pytest.raises(RuntimeError, match="hash mismatch"):
+        with TestClient(create_app(copy)):
+            pass
