@@ -1,0 +1,41 @@
+name: Tests and container build
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check src tests
+      - run: pytest -q
+      - name: Create synthetic demonstration artifact
+        run: |
+          python -m src.data --synthetic --out data/ci.csv
+          python -m src.train --data data/ci.csv --out artifacts/ci --source synthetic
+      - uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-model
+          path: artifacts/ci/
+          retention-days: 7
+      - name: Build container with CI artifact
+        run: |
+          mkdir -p artifacts/demo
+          cp artifacts/ci/* artifacts/demo/
+          docker build -t stock-ranker:ci .
+      - name: Container smoke test
+        run: |
+          docker run -d --name ranker -p 7860:7860 stock-ranker:ci
+          trap 'docker logs ranker; docker rm -f ranker' EXIT
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://localhost:7860/ready; then exit 0; fi
+            sleep 2
+          done
+          exit 1
