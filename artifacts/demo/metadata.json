@@ -1,0 +1,42 @@
+{
+  "model_version": "20261001T033733Z-c2dbb236",
+  "created_at": "2026-10-01T03:37:33.360074+00:00",
+  "data_source": "synthetic",
+  "data_sha256": "c2dbb236d8c15737cae4322f8d318c0a0851f62416d69e566473932d1afb4b22",
+  "model_sha256": "e1a661b5c5f196cb164a2ad4dedeb8dc841b81a85fc9083b71264d1c3829af5d",
+  "snapshot_sha256": "a96ae6219526e377828427924db314e46afd0b93eefa8a5d3f5156eb33d4e0ff",
+  "features": [
+    "return_1d",
+    "momentum_5d",
+    "momentum_20d",
+    "volatility_20d",
+    "volume_ratio"
+  ],
+  "horizon_trading_days": 5,
+  "snapshot_as_of": "2023-06-13",
+  "train_start": "2020-01-29",
+  "train_end": "2022-09-27",
+  "test_start": "2022-10-05",
+  "test_end": "2023-06-06",
+  "train_rows": 5560,
+  "test_rows": 1400,
+  "metrics": {
+    "test_mae": 0.02647851664338061,
+    "zero_return_baseline_mae": 0.026370415302092394,
+    "daily_rank_correlation": 0.0025850340136054427
+  },
+  "versions": {
+    "python": "3.11.2",
+    "xgboost": "3.0.0",
+    "pandas": "2.2.3",
+    "scikit_learn": "1.6.1"
+  },
+  "limitations": [
+    "Fixed-universe survivorship bias; not an investment recommendation.",
+    "Single chronological holdout, not nested walk-forward validation.",
+    "Overlapping five-day labels; observations are not independent.",
+    "Predictions use a dated snapshot, not live market data.",
+    "Features assume the trading session has closed.",
+    "Adjusted historical prices can be revised; no point-in-time fundamentals."
+  ]
+}
